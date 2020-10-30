@@ -1,4 +1,4 @@
-FROM eeacms/jenkins-slave
+FROM eeacms/jenkins-slave:latest
 
 USER root
 
