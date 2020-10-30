@@ -1,0 +1,15 @@
+orbs:
+  docker: circleci/docker@1.5.0
+version: 2.1
+workflows:
+  build-and-publish-docker-image:
+    jobs:
+      - docker/hadolint:
+          dockerfiles: Dockerfile
+          #ignore-rules: 'DL4005,DL3008'
+          trusted-registries: 'docker.io'
+      - docker/publish:
+          requires:
+            - docker/hadolint
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          tag: $CIRCLE_SHA1,latest
