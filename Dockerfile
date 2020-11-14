@@ -35,13 +35,14 @@ RUN mkdir -p /var/jenkins_home \
  && echo "$MD5  /bin/swarm-client.jar" | md5sum -c -
 
 
-# hadolint ignore=DL4001
+# hadolint ignore=DL4001, DL3008
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn apt-key add - \
     && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-    && apt-get update && apt-get -y --no-install-recommends install google-chrome-stable=86.0.4240.183-1 \
+    && apt-get update && apt-get -y --no-install-recommends install google-chrome-stable \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
 
 VOLUME /var/jenkins_home/worker
 WORKDIR /var/jenkins_home/worker
