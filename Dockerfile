@@ -24,7 +24,7 @@ RUN apt-get update -y \
   && gosu nobody true
 
 RUN pip3 install setuptools==50.3.2 wheel==0.35.1
-RUN pip3 install robotframework==3.2.2 webdrivermanager==0.9.0 robotframework-seleniumlibrary==4.5.0
+RUN pip3 install robotframework==3.2.2 webdrivermanager==0.9.0 robotframework-seleniumlibrary==4.5.0 robotframework-xvfb==1.2.2
 RUN webdrivermanager chrome firefox opera --linkpath /bin
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
