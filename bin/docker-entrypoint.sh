@@ -1,7 +1,4 @@
-#!/usr/bin/env bash
-
-
-PARAMS=""
+PARAMS="-retry 5"
 
 # The Jenkins username for authentication
 if [ ! -z "$JENKINS_USER" ]; then
@@ -13,14 +10,9 @@ if [ ! -z "$JENKINS_PASS" ]; then
   PARAMS="$PARAMS -password $JENKINS_PASS"
 fi
 
-# The Jenkins user password environment variable;
-if [ ! -z "$JENKINS_PASS_ENV" ]; then
-  PARAMS="$PARAMS -passwordEnvVariable JENKINS_PASS_ENV"
-fi
-
 # Name of the slave
 if [ ! -z "$JENKINS_NAME" ]; then
-  IP=`python -c "import socket; print(socket.gethostbyname(socket.gethostname()))"`
+  IP=`python3 -c "import socket; print(socket.gethostbyname(socket.gethostname()))"`
   PARAMS="$PARAMS -name $JENKINS_NAME-$IP"
 fi
 
@@ -32,15 +24,6 @@ fi
 # Number of executors. Default is equal with the number of available CPUs
 if [ ! -z "$JENKINS_EXECUTORS" ]; then
   PARAMS="$PARAMS -executors $JENKINS_EXECUTORS"
-fi
-
-# Whitespace-separated list of labels to be assigned
-# for this slave. Multiple options are allowed.
-# JENKINS_LABELS
-
-# Number of retries before giving up. Unlimited if not specified.
-if [ ! -z "$JENKINS_RETRY" ]; then
-  PARAMS="$PARAMS -retry $JENKINS_RETRY"
 fi
 
 # The mode controlling how Jenkins allocates jobs to
@@ -101,32 +84,4 @@ if [ ! -z "$JENKINS_OPTS" ]; then
   PARAMS="$PARAMS $JENKINS_OPTS"
 fi
 
-RUN_AS_USER=jenkins
-
-if [[ "$RUN_AS_ROOT" == "yes" ]]; then
-  RUN_AS_USER=root
-  usermod -d /var/jenkins_home/worker/ root
-fi
-
-
-
-echo "Fixing permissions"
-chown -R jenkins:jenkins /var/jenkins_home/worker/
-
-if [ ! -e /var/jenkins_home/worker/.ssh/id_rsa.pub ]; then
-  gosu jenkins ssh-keygen -q -N "" -f /var/jenkins_home/worker/.ssh/id_rsa
-  echo "Jenkins Slave SSH public key is:"
-  echo "================================================================================"
-  echo "`cat /var/jenkins_home/worker/.ssh/id_rsa.pub`"
-  echo "================================================================================"
-fi
-
-if [ "$1" = "java" ]; then
-  exec gosu $RUN_AS_USER java $JAVA_OPTS -jar /bin/swarm-client.jar -fsroot /var/jenkins_home/worker/ -labels "$JENKINS_LABELS" $PARAMS
-fi
-
-if [[ "$1" == "-"* ]]; then
-  exec gosu $RUN_AS_USER java $JAVA_OPTS -jar /bin/swarm-client.jar -fsroot /var/jenkins_home/worker/ -labels "$JENKINS_LABELS" $PARAMS "$@"
-fi
-
-exec "$@"
+java $JAVA_OPTS -jar ${JENKINS_DIR}/swarm-client.jar -fsroot ${JENKINS_HOME_DIR} -labels "$JENKINS_LABELS" $PARAMS
