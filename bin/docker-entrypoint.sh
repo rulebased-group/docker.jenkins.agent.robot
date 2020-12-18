@@ -1,4 +1,19 @@
-PARAMS="-retry 5"
+PARAMS=""
+
+# Whitespace-separated list of labels to be assigned for this agent. Multiple options are allowed.
+if [ ! -z "$JENKINS_LABELS" ]; then
+  PARAMS="$PARAMS -labels \"$JENKINS_LABELS\""
+fi
+
+# Remote root directory. (default: .)
+if [ ! -z "$JENKINS_REMOTE_ROOT" ]; then
+  PARAMS="$PARAMS -fsroot $JENKINS_REMOTE_ROOT"
+fi
+
+# Number of retries before giving up. Unlimited if not specified. (default: -1)
+if [ ! -z "$JENKINS_RETRIES" ]; then
+  PARAMS="$PARAMS -retry $JENKINS_RETRIES"
+fi
 
 # The Jenkins username for authentication
 if [ ! -z "$JENKINS_USER" ]; then
@@ -84,4 +99,4 @@ if [ ! -z "$JENKINS_OPTS" ]; then
   PARAMS="$PARAMS $JENKINS_OPTS"
 fi
 
-java $JAVA_OPTS -jar ${JENKINS_DIR}/swarm-client.jar -fsroot ${JENKINS_HOME_DIR} -labels "$JENKINS_LABELS" $PARAMS
+java $JAVA_OPTS -jar ${JENKINS_DIR}/swarm-client.jar $PARAMS
