@@ -27,11 +27,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: prepare
+        id: prepare
+        run: |
+          DOCKER_IMAGE=${GITHUB_REPOSITORY//${GITHUB_REPOSITORY_OWNER}\//}
+          
+          echo ::set-output name=docker_image::${DOCKER_IMAGE}
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v3
         with:
           images: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.prepare.outputs.docker_image }}
             ghcr.io/${{ github.repository }}
           tags: |
             type=schedule
